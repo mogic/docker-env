@@ -1,0 +1,3 @@
+# --- Ignore local folders
+.idea/
+local/nginx-data/logs

@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+    webserver:
+        image: nginx:1.10.1
+        ports:
+            - "80:80"
+        volumes:
+            - ./nginx-data/conf/nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./nginx-data/conf/sitetwo.conf:/etc/nginx/conf.d/sitetwo.conf
+            - ./nginx-data/conf/siteone.conf:/etc/nginx/conf.d/siteone.conf
+            - ./nginx-data/conf/myframework.conf:/etc/nginx/conf.d/myframework.conf
+
+            - ./nginx-data/conf/dev-laravel.conf:/etc/nginx/conf.d/dev-laravel.conf
+            - ./nginx-data/conf/dev-vue.conf:/etc/nginx/conf.d/dev-vue.conf
+            - ./nginx-data/conf/dev-react.conf:/etc/nginx/conf.d/dev-react.conf
+            - ./nginx-data/conf/dev-ebay.conf:/etc/nginx/conf.d/dev-ebay.conf
+
+            - ./nginx-data/logs/nginx-access.log:/var/log/nginx/access.log
+            - ./nginx-data/logs/nginx-error.log:/var/log/nginx/error.log
+        links:
+            - phpfpm
+
+    # image: php:fpm
+    phpfpm:
+        build: php-fpm-72/. # image: php:fpm - will get the latest php
+        ports:
+            - "9000:9000"
+        volumes:
+            - ../../site-one/:/var/www/site-one
+            - ../../site-two/:/var/www/site-two
+            - ../../my-framework/:/var/www/my-framework
+            - ../../dev-laravel/:/var/www/dev-laravel
+            - ../../dev-react/:/var/www/dev-react
+            - ../../dev-vue/:/var/www/dev-vue
+            - ../../dev-ebay/:/var/www/dev-ebay
+
+    my-monolith:
+        image: mysql:5.6.32
+        ports:
+          - "7800:3306"
+        environment:
+          MYSQL_ROOT_PASSWORD: 1234
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: mydev
+          MYSQL_PASSWORD: mydev
+        volumes:
+          - my-monolith-data:/var/lib/mysql
+
+    db-ebay:
+        image: mysql:5.6.32
+        ports:
+            - "7100:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234
+            MYSQL_DATABASE: ebay
+            MYSQL_USER: dev
+            MYSQL_PASSWORD: dev
+        volumes:
+            - db-ebay-data:/var/lib/mysql
+
+volumes:
+  my-monolith-data: {}
+  db-ebay-data: {}
